@@ -22,7 +22,7 @@ def get_questions_for_mode(mode):
 # Set page config
 st.set_page_config(
     page_title="Jainism course Online Exam Portal",
-    page_icon="🕉️",
+    page_icon="❤️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
