@@ -356,9 +356,14 @@ if st.session_state.page == "register":
                     <li><strong>Review:</strong> You can flag questions to review them later (marked in Orange).</li>
                 </ul>
                 <hr style="border: 0; border-top: 1px solid rgba(0,0,0,0.1); margin: 20px 0;">
-                <p style="font-size: 0.85rem; text-align: center; color: #FF8008; font-weight: 500;">
+                <p style="font-size: 0.85rem; text-align: center; color: #FF8008; font-weight: 500; margin-bottom: 15px;">
                     Developed for the Jainism Course Examination
                 </p>
+                <a href="https://wa.me/917339615381?text=Hello,%20I%20have%20a%20question%20regarding%20the%20Jainism%20Course%20Exam." target="_blank" style="text-decoration: none;">
+                    <div style="background-color: #25D366; color: white; padding: 10px; border-radius: 8px; font-weight: bold; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.85rem; cursor: pointer;">
+                        💬 Need Help? Chat on WhatsApp
+                    </div>
+                </a>
             </div>
             """,
             unsafe_allow_html=True
@@ -569,6 +574,18 @@ elif st.session_state.page == "quiz":
             <div style="display: flex; align-items: center; margin-bottom: 5px;"><span style="display:inline-block; width:12px; height:12px; background:#FF8008; border-radius:3px; margin-right:8px;"></span> Flagged for Review / समीक्षा के लिए चिह्नित</div>
             <div style="display: flex; align-items: center; margin-bottom: 5px;"><span style="display:inline-block; width:12px; height:12px; background:rgba(255,255,255,0.15); border-radius:3px; margin-right:8px;"></span> Unanswered / अनुत्तरित</div>
         </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    # WhatsApp Support Link in Sidebar
+    st.sidebar.markdown(
+        """
+        <a href="https://wa.me/917339615381?text=Hello,%20I%20have%20a%20question%20regarding%20the%20Jainism%20Course%20Exam." target="_blank" style="text-decoration: none;">
+            <div style="background-color: #25D366; color: white; padding: 10px; border-radius: 8px; font-weight: bold; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.85rem; cursor: pointer;">
+                💬 Contact Support (WhatsApp)
+            </div>
+        </a>
         """,
         unsafe_allow_html=True
     )
@@ -843,12 +860,23 @@ elif st.session_state.page == "result":
         unsafe_allow_html=True
     )
     
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown(
+        """
+        <a href="https://wa.me/917339615381?text=Hello,%20I%20have%20a%20question%20regarding%20my%20Jainism%20Course%20Exam%20results." target="_blank" style="text-decoration: none;">
+            <div style="background-color: #25D366; color: white; padding: 12px; border-radius: 8px; font-weight: bold; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9rem; cursor: pointer; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                💬 Need Help with Results? Chat on WhatsApp
+            </div>
+        </a>
+        """,
+        unsafe_allow_html=True
+    )
+    
     if st.button("🚪 Log Out / Exit Portal", use_container_width=True):
         # Reset Session State
         for key in list(st.session_state.keys()):
             del st.session_state[key]
         st.rerun()
+
 
 # ==========================================
 # PAGE: ADMIN DASHBOARD
