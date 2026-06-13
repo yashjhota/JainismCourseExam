@@ -887,10 +887,9 @@ elif st.session_state.page == "admin":
     with s_col4:
         st.metric("Top Score", f"{max_score} / 100" if total_submitted > 0 else "N/A")
         
-    # Formatted columns for CSV download
     csv_df = df.copy()
-    csv_df["start_time"] = csv_df["start_time"].apply(lambda x: time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(x)))
-    csv_df["end_time"] = csv_df["end_time"].apply(lambda x: time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(x)) if x else "N/A")
+    csv_df["start_time"] = csv_df["start_time"].apply(lambda x: time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(x)) if pd.notna(x) else "N/A")
+    csv_df["end_time"] = csv_df["end_time"].apply(lambda x: time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(x)) if pd.notna(x) else "N/A")
     
     # Download Button
     csv = csv_df.to_csv(index=False).encode('utf-8')
