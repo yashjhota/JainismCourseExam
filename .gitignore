@@ -1,0 +1,11 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Local SQLite databases
+quiz_database.db
+test_quiz_database.db
+
+# OS files
+.DS_Store
+Thumbs.db
