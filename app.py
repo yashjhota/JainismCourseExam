@@ -115,6 +115,27 @@ def inject_custom_css(dark_mode=False):
             opacity: 0.8;
             transform: scale(1.05);
         }}
+
+        /* Mobile responsiveness media queries */
+        @media (max-width: 768px) {{
+            .content-card {{
+                padding: 15px !important;
+                margin-bottom: 15px !important;
+            }}
+            .header-banner {{
+                padding: 20px 15px !important;
+                margin-bottom: 20px !important;
+            }}
+            .header-banner h1 {{
+                font-size: 1.8rem !important;
+            }}
+            div[data-testid="column"] {{
+                width: 100% !important;
+                flex: 1 1 100% !important;
+                min-width: 100% !important;
+                margin-bottom: 8px !important;
+            }}
+        }}
     </style>
     """
     st.markdown(css, unsafe_allow_html=True)
@@ -403,44 +424,61 @@ elif st.session_state.page == "quiz":
                 st.session_state.page = "result"
                 st.rerun()
 
-    # ====================
-    # SIDEBAR: PANEL PALETTE & INFO
-    # ====================
-    st.sidebar.markdown('<div class="sidebar-title">⏱_ Timers & Palette</div>', unsafe_allow_html=True)
-    
-    # Inject client-side countdown timer in HTML
+    # Inject client-side countdown timer in HTML (Horizontal on desktop, stacked on mobile)
     double_timer_html = f"""
-    <div style="display: flex; flex-direction: column; gap: 8px;">
+    <div class="timer-container">
         <!-- Global Exam Timer -->
-        <div style="
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-            padding: 8px 12px;
-            border-radius: 8px;
-            color: white;
-            text-align: center;
-            font-family: 'Outfit', sans-serif;
-            box-shadow: 0 4px 8px rgba(42, 82, 152, 0.2);
-            font-weight: bold;
-        ">
+        <div class="timer-card exam-card">
             <span style="font-size: 9px; text-transform: uppercase; letter-spacing: 0.6px; display: block; opacity: 0.85;">Total Exam Time</span>
             <span id="exam-timer" style="font-size: 20px;">100:00</span>
         </div>
 
         <!-- Question Timer -->
-        <div style="
-            background: linear-gradient(135deg, #FF4B4B, #FF8008);
+        <div class="timer-card q-card">
+            <span style="font-size: 9px; text-transform: uppercase; letter-spacing: 0.6px; display: block; opacity: 0.85;">Question Time Remaining</span>
+            <span id="question-timer" style="font-size: 20px;">01:00</span>
+        </div>
+    </div>
+
+    <style>
+        body {{
+            margin: 0;
+            padding: 0;
+            background-color: transparent;
+            overflow: hidden;
+        }}
+        .timer-container {{
+            display: flex;
+            flex-direction: row;
+            gap: 12px;
+            width: 100%;
+            box-sizing: border-box;
+        }}
+        .timer-card {{
+            flex: 1;
             padding: 8px 12px;
             border-radius: 8px;
             color: white;
             text-align: center;
             font-family: 'Outfit', sans-serif;
-            box-shadow: 0 4px 8px rgba(255, 75, 75, 0.2);
             font-weight: bold;
-        ">
-            <span style="font-size: 9px; text-transform: uppercase; letter-spacing: 0.6px; display: block; opacity: 0.85;">Question Time Remaining</span>
-            <span id="question-timer" style="font-size: 20px;">01:00</span>
-        </div>
-    </div>
+        }}
+        .exam-card {{
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            box-shadow: 0 4px 8px rgba(42, 82, 152, 0.2);
+        }}
+        .q-card {{
+            background: linear-gradient(135deg, #FF4B4B, #FF8008);
+            box-shadow: 0 4px 8px rgba(255, 75, 75, 0.2);
+        }}
+        
+        @media (max-width: 600px) {{
+            .timer-container {{
+                flex-direction: column;
+                gap: 8px;
+            }}
+        }}
+    </style>
 
     <script>
         var examTime = {remaining_seconds};
@@ -475,11 +513,12 @@ elif st.session_state.page == "quiz":
         var timerInterval = setInterval(updateTimers, 1000);
     </script>
     """
-    with st.sidebar:
-        components.html(double_timer_html, height=130)
-    
-    st.sidebar.markdown('<hr style="margin: 10px 0; border: 0; border-top: 1px solid rgba(255,255,255,0.15);">', unsafe_allow_html=True)
-    st.sidebar.markdown('<p style="font-size: 0.9rem; font-weight: 600; text-align: center; margin-bottom: 8px;">Question Palette / प्रश्न पैलेट</p>', unsafe_allow_html=True)
+    components.html(double_timer_html, height=135)
+
+    # ====================
+    # SIDEBAR: PALETTE
+    # ====================
+    st.sidebar.markdown('<div class="sidebar-title">🧭 Palette</div>', unsafe_allow_html=True)
     
     # 5-column link-based CBT grid
     grid_html = "<div style='display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 5px; max-height: 320px; overflow-y: auto;'>"
@@ -611,6 +650,10 @@ elif st.session_state.page == "quiz":
                 del st.session_state.answers[str(q_id)]
                 db.update_answers(st.session_state.participant_id, st.session_state.answers)
                 st.rerun()
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    with st.expander("📊 View Question Palette / प्रश्न पैलेट देखें", expanded=False):
+        st.markdown(grid_html, unsafe_allow_html=True)
                 
     # ====================
     # SUBMIT CONFIRMATION MODAL (OVERLAY)
