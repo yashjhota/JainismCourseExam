@@ -247,11 +247,20 @@ if q_param and st.session_state.page == "quiz":
 # PAGE: REGISTRATION & ONBOARDING
 # ==========================================
 if st.session_state.page == "register":
+    # Load and display logo
+    logo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logo.png")
+    if os.path.exists(logo_path):
+        col_logo_l, col_logo_c, col_logo_r = st.columns([1, 2, 1])
+        with col_logo_c:
+            st.image(logo_path, use_container_width=True)
+            
     st.markdown(
         """
-        <div class="header-banner">
-            <h1>🕉️ जैनधर्म ऑनलाइन परीक्षा पोर्टल</h1>
-            <p>Jainism Online Course Entrance & Assessment Examination Portal</p>
+        <div class="header-banner" style="margin-top: 15px;">
+            <h1 style="font-size: 2.0rem !important; line-height: 1.3;">Shri Vishwataarak Ratnatrayi Vidhya Raajitam Jainism Course</h1>
+            <p style="font-size: 1.1rem; font-weight: 600; margin-top: 12px !important; color: #ffffff; opacity: 0.95;">
+                Writer : Param Pujya Sadhviji Shri Maniprabha Shriji M S
+            </p>
         </div>
         """,
         unsafe_allow_html=True
