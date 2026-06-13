@@ -188,6 +188,16 @@ elif view_param == "candidate":
         st.rerun()
 
 # Process Query Parameters immediately
+# Check if disqualified due to tab switching
+if st.query_params.get("disqualify") == "1" and st.session_state.page == "quiz":
+    st.query_params.clear()
+    p_id = st.session_state.participant_id
+    if p_id:
+        db.submit_exam(p_id, 0, "disqualified")
+        st.session_state.page = "result"
+        st.toast("🚨 Disqualified for tab switching!", icon="❌")
+        st.rerun()
+
 # Check if time runs out
 if st.query_params.get("timeout") == "1" and st.session_state.page == "quiz":
     st.query_params.clear()
@@ -205,6 +215,7 @@ if st.query_params.get("timeout") == "1" and st.session_state.page == "quiz":
         st.session_state.page = "result"
         st.toast("⏳ Time's up! Your exam has been auto-submitted.", icon="⏰")
         st.rerun()
+
 
 # Check if question timer runs out
 if st.query_params.get("next_q") == "1" and st.session_state.page == "quiz":
@@ -247,6 +258,9 @@ if q_param and st.session_state.page == "quiz":
 # PAGE: REGISTRATION & ONBOARDING
 # ==========================================
 if st.session_state.page == "register":
+    # Reset tab switch warnings on registration page load
+    components.html("<script>sessionStorage.removeItem('tab_switch_warnings');</script>", height=0)
+    
     # Load and display logo
     logo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logo.png")
     if os.path.exists(logo_path):
@@ -525,6 +539,22 @@ elif st.session_state.page == "quiz":
         
         updateTimers();
         var timerInterval = setInterval(updateTimers, 1000);
+
+        // Prevent tab switching
+        document.addEventListener('visibilitychange', function() {{
+            if (document.hidden) {{
+                var warnings = parseInt(sessionStorage.getItem('tab_switch_warnings') || '0');
+                warnings++;
+                sessionStorage.setItem('tab_switch_warnings', warnings.toString());
+                
+                if (warnings <= 2) {{
+                    alert("⚠️ WARNING / चेतावनी:\\n\\nYou are not allowed to switch tabs or leave the exam page. If you switch tabs again, your exam will be auto-submitted and you will be disqualified.\\n\\nआपको परीक्षा के दौरान टैब बदलने या परीक्षा पृष्ठ छोड़ने की अनुमति नहीं है। दोबारा ऐसा करने पर आपकी परीक्षा स्वतः सबमिट और अयोग्य घोषित कर दी जाएगी।\\n\\nWarning Count: " + warnings + " / 2");
+                }} else {{
+                    alert("🚨 DISQUALIFIED / अयोग्य घोषित:\\n\\nYou have switched tabs more than 2 times and have been disqualified. Your exam will now be submitted.\\n\\nआपने 2 से अधिक बार टैब बदला है और आपको अयोग्य घोषित कर दिया गया है। आपकी परीक्षा अब सबमिट की जाएगी।");
+                    window.parent.location.search = "?disqualify=1";
+                }}
+            }}
+        }});
     </script>
     """
     components.html(double_timer_html, height=135)
@@ -740,6 +770,47 @@ elif st.session_state.page == "result":
     p_data = db.get_participant(p_id)
     if not p_data:
         st.error("Error loading candidate results.")
+        st.stop()
+        
+    # Check if candidate was disqualified
+    if p_data.get("status") == "disqualified":
+        st.markdown(
+            """
+            <div class="content-card" style="border-left: 5px solid #DC3545; padding: 25px; margin-top: 20px;">
+                <div style="font-weight: bold; color: #DC3545; font-size: 1.5rem; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                    🚨 Disqualified / अयोग्य घोषित
+                </div>
+                <div style="font-size: 1.05rem; line-height: 1.6; margin-bottom: 20px; color: #1c1e21;">
+                    <strong>Violation of Examination Rules:</strong><br>
+                    You have been disqualified because you switched browser tabs or left the active examination window more than 2 times during the test. 
+                    Your attempt has been invalidated, and your score is recorded as 0.
+                    <br><br>
+                    <strong>परीक्षा नियमों का उल्लंघन:</strong><br>
+                    आपको परीक्षा से अयोग्य घोषित कर दिया गया है क्योंकि आपने परीक्षा के दौरान 2 से अधिक बार ब्राउज़र टैब बदला या सक्रिय परीक्षा विंडो को छोड़ दिया। 
+                    आपका यह प्रयास अमान्य कर दिया गया है, और आपका स्कोर 0 दर्ज किया गया है।
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        
+        # WhatsApp Support Button
+        st.markdown(
+            """
+            <a href="https://wa.me/917339615381?text=Hello,%20I%20have%20been%20disqualified%20from%20the%20Jainism%20Course%20Exam." target="_blank" style="text-decoration: none;">
+                <div style="background-color: #25D366; color: white; padding: 12px; border-radius: 8px; font-weight: bold; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9rem; cursor: pointer; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                    💬 Questions about Disqualification? Chat on WhatsApp
+                </div>
+            </a>
+            """,
+            unsafe_allow_html=True
+        )
+        
+        if st.button("🚪 Log Out / Exit Portal", use_container_width=True):
+            # Reset Session State
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
+            st.rerun()
         st.stop()
         
     score = p_data["score"]
